@@ -46,27 +46,15 @@ module.exports = function NoddityButler(host, levelUpDb, options) {
 		valueEncoding: 'json'
 	}), {
 		refreshEvery: options.refreshEvery,
-		checkToSeeIfItemsNeedToBeRefreshedEvery: options.cacheCheckIntervalMs
+		checkToSeeIfItemsNeedToBeRefreshedEvery: options.cacheCheckIntervalMs,
+		sortPosts: options.sortPosts
 	})
 
 	reflect('change', postManager, emitter, 'post changed')
 	reflect('change', indexManager, emitter, 'index changed')
 
 	if (options.loadPostsOnIndexChange) {
-		indexManager.on('change', indexManager.getPosts)
-	}
-
-	function getPosts(options, cb) {
-		if (typeof options === 'function') {
-			cb = options
-		}
-		if (typeof options !== 'object') {
-			options = {}
-		}
-		var local = options.local || false
-		var begin = typeof options.mostRecent === 'number' ? -options.mostRecent : undefined
-		var postGetter = local ? indexManager.getLocalPosts : indexManager.getPosts
-		postGetter(begin, undefined, cb)
+		indexManager.on('change', indexManager.onChange)
 	}
 
 	function stop() {
@@ -75,7 +63,7 @@ module.exports = function NoddityButler(host, levelUpDb, options) {
 	}
 
 	butler.getPost = postManager.getPost
-	butler.getPosts = getPosts
+	butler.getPosts = indexManager.getPosts
 	butler.allPostsAreLoaded = indexManager.allPostsAreLoaded
 	butler.stop = stop
 	butler.refreshPost = postManager.refresh

@@ -152,7 +152,7 @@ test("IndexManager doesn't emit changes when none have been made", function(t) {
 		indexManager.on('change', function(key, value, previousValue) {
 			t.notOk(true, 'The index manager emits no changes')
 		})
-	}, 20)
+	}, 30)
 
 	setTimeout(function() {
 		indexManager.stop()
